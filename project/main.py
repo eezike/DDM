@@ -1,6 +1,6 @@
 # main.py
 
-from flask import Blueprint, render_template, request, redirect, url_for
+from flask import Blueprint, render_template, request, redirect, url_for, session
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 import os
@@ -61,14 +61,35 @@ def feed():
     problems = Problem.query.all()
     return render_template('feed.html', problems=problems)
 
-@main.route('/answer-problem/<int:problem_id>')
+@main.route('/answer-problem/<int:problem_id>', methods=["GET", "POST"])
 @login_required
 def answer_problem(problem_id):
     problem = Problem.query.get_or_404(problem_id)
-    return render_template('answer_problem.html', problem=problem)
+    if request.method == 'POST':
 
-@main.route('/answer-problem/<int:problem_id>', methods=["POST"])
+        answer = request.form.get('answer')
+        if 'answers' not in session:
+            session['answers'] = []
+
+        session['answers'].append(answer)
+        session.modified = True
+
+
+        if (len(session['answers']) == problem.questions.count() or 
+            session['answers'][-1] == '10' or 
+            session['answers'][-1] == '-10'):
+            # All questions answered, process the answers
+            # You can store the answers in a database or perform any other desired action
+            return redirect(url_for('main.graph'))
+        else:
+            current_question = problem.questions[len(session['answers'])]
+            return render_template('answer_problem.html', problem=problem, question=current_question)
+    else:
+        session['answers'] = []
+        current_question = problem.questions[0]
+        return render_template('answer_problem.html', problem=problem, question=current_question)    
+
+@main.route('/graph', methods=["GET", "POST"])
 @login_required
-def answer_post(problem_id):
-    problem = Problem.query.get_or_404(problem_id)
-    return render_template('answer_problem.html', problem=problem)
+def graph():
+    return render_template('graph.html')

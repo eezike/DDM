@@ -1,75 +1,66 @@
 {% extends "base.html" %}
-
 {% block content %}
 <style>
-    body {
+    html body {
         color: black;
+    }
+    .slider-container {
+        position: relative;
+        margin-bottom: 20px;
+        width: 100%;
+    }
+    .slider-value {
+        position: absolute;
+        top: -30px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-weight: bold;
+    }
+    .slider.is-fullwidth {
+        width: 100%;
     }
 </style>
 <div class="container">
     <div class="columns is-centered">
         <div class="column is-8">
             <div class="box">
-                <h1 class="title">{{ problem.title }}</h1>
+                <h1 class="title has-text-black">{{ problem.title }}</h1>
                 {% if problem.user %}
-                <p class="subtitle is-6">Submitted by: {{ problem.user.username }}</p>
+                <p class="subtitle is-6 has-text-black">Submitted by: {{ problem.user.name }}</p>
                 {% endif %}
                 {% if problem.emoji %}
-                <p>{{ problem.emoji }}</p>
+                <div style="font-size: 5em;">{{ problem.emoji }}</div>
                 {% endif %}
-                <ul id="questions">
-                    {% for question in problem.questions %}
-                    <li class="question {% if forloop.first %} active {% endif %}" data-question-id="{{ question.id }}">
-                        <h3 class="subtitle is-6">{{ question.text }}</h3>
-                        <form method="POST" action="" {% if not forloop.first %} style="display: none;" {% endif %}>
-                            <div class="field">
-                                <div class="control">
-                                    <input class="slider is-fullwidth" name="answer" step="1" min="-10" max="10" value="0" type="range">
-                                    <div class="level">
-                                        <span class="level-left">-10</span>
-                                        <span class="level-right">10</span>
-                                    </div>
-                                </div>
+                <h3 class="subtitle is-6 has-text-black">{{ question.text }}</h3>
+                <form method="POST">
+                    <div class="field">
+                        <div class="control slider-container">
+                            <input class="slider is-fullwidth" id="answerSlider" name="answer" step="1" min="-10" max="10" value="0" type="range" required>
+                            <div class="slider-value" id="sliderValue">0</div>
+                            <div class="level">
+                                <span class="level-left">-10</span>
+                                <span class="level-right">10</span>
                             </div>
-                            <div class="field">
-                                <div class="control">
-                                    <button class="button is-primary" onclick="submitAnswer(event)">Submit Answer</button>
-                                </div>
-                            </div>
-                        </form>
-                        {% for answer in question.answers %}
-                        <div class="box answer-box-{{ question.id }}" style="display: none;">
-                            <p>Answer: {{ answer.text }}</p>
-                            {% if answer.user %}
-                            <p class="is-size-7">Answered by: {{ answer.user.username }}</p>
-                            {% endif %}
                         </div>
-                        {% endfor %}
-                    </li>
-                    {% endfor %}
-                </ul>
+                    </div>
+                    <div class="field">
+                        <div class="control">
+                            <button class="button is-primary" type="submit">Next</button>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 </div>
-
 <script>
-    function submitAnswer(event) {
-        event.preventDefault();
-        var currentQuestion = document.querySelector('.question.active');
-        var nextQuestion = currentQuestion.nextElementSibling;
-        var answerBox = currentQuestion.querySelector('.box');
+    const slider = document.getElementById('answerSlider');
+    const sliderValue = document.getElementById('sliderValue');
 
-        // Display next question if available
-        if (nextQuestion) {
-            currentQuestion.classList.remove('active');
-            nextQuestion.classList.add('active');
-            nextQuestion.querySelector('form').style.display = 'block';
-            answerBox.style.display = 'none';
-        }
-
-        // Alternatively, you can submit the form to send the answer to the server
-        // currentQuestion.querySelector('form').submit();
-    }
+    slider.addEventListener('input', function() {
+        sliderValue.textContent = this.value;
+    });
 </script>
 {% endblock %}

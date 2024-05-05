@@ -10,6 +10,7 @@
                 <p>By {{ decision.user.name }}</p>
                
                 <img src="data:image/png;base64,{{ image_data }}" alt="Drift Diffusion Model Graph">
+                <a class="is-danger button" href="{{ url_for('main.feed') }}">Back</a>
             </div>
         </div>
     </div>

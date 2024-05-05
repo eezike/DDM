@@ -6,6 +6,7 @@ from werkzeug.utils import secure_filename
 
 from .models import Decision, Evidence, Response
 from . import db
+from sqlalchemy import not_
 
 import numpy as np
 import matplotlib
@@ -15,6 +16,11 @@ from io import BytesIO
 import base64
 
 main = Blueprint('main', __name__)
+
+@main.before_request
+def clear_session():
+    if request.endpoint != 'main.answer_decision':
+        session['responses'] = []
 
 @main.route('/')
 def index():
@@ -31,6 +37,7 @@ def profile():
     return render_template('profile.html', name=current_user.name, decisions=decisions)
 
 @main.route('/delete_decision/<int:decision_id>', methods=['POST'])
+@login_required
 def delete_decision(decision_id):
     decision = Decision.query.get_or_404(decision_id)
 
@@ -73,16 +80,24 @@ def create_post():
     db.session.commit()
     return redirect(url_for('main.profile'))
 
+def has_user_answered_decision(user_id, decision_id):
+    # Query the Response table to check if the user has answered the decision
+    response = Response.query.filter_by(user_id=user_id, decision_id=decision_id).first()
+    
+    # If a response exists, return True (user has answered), otherwise return False
+    return response is not None
 
 @main.route('/feed')
-@login_required
 def feed():
     decisions = Decision.query.all()
-    return render_template('feed.html', decisions=decisions)
+    return render_template('feed.html', decisions=decisions, has_user_answered_decision=has_user_answered_decision)
 
 @main.route('/answer-decision/<int:decision_id>', methods=["GET", "POST"])
 @login_required
 def answer_decision(decision_id):
+
+    if has_user_answered_decision(current_user.id, decision_id):
+        return "You have already answered this questionaire!"
 
     decision = Decision.query.get_or_404(decision_id)
 
@@ -102,20 +117,24 @@ def answer_decision(decision_id):
 
         print(session['responses'])
         prev_value = session['responses'][-1]
+        responses_index = len(session['responses'])
 
         if (responses_index == num_evidences or 
             session['responses'][-1] == '10' or 
             session['responses'][-1] == '-10'):
             # All evidences responseed, process the responses
             # You can store the responses in a database or perform any other desired action
-            for i in range(num_evidences):
-                response = Response(value=float(session['responses'][i]), user_id=current_user.id, evidence_id=decision.evidences[i].id)    
+            for i in range(len(session['responses'])):
+                response = Response(
+                    value=float(session['responses'][i]),
+                    user_id=current_user.id,
+                    evidence_id=decision.evidences[i].id,
+                    decision_id=decision.id)    
                 db.session.add(response)
+            decision.num_responses += 1
             db.session.commit()
 
             session['responses'] = []
-
-            decision.num_responses += 1
 
             return redirect(url_for('main.graph',  decision_id=decision.id))
         
@@ -123,7 +142,7 @@ def answer_decision(decision_id):
     current_evidence = decision.evidences[responses_index]
     return render_template('answer_decision.html', decision=decision, evidence=current_evidence, responses_index=responses_index, num_evidences=num_evidences, prev_value=prev_value)    
 
-def make_drift_diffusion_model(evidence_to_score):
+def make_drift_diffusion_model(evidences_texts, my_scores, other_scores, decision):
     # Define the evidence and scores
     # evidence_to_score = {
     #     "My crush will be there.": 5,
@@ -135,21 +154,20 @@ def make_drift_diffusion_model(evidence_to_score):
 
     # Initialize variables
     current_score = 0
-    time_intervals = list(evidence_to_score.keys())
-    scores_over_time = [current_score]
-
-    # Calculate scores over time
-    for evidence_name in time_intervals:
-        current_score = evidence_to_score[evidence_name]
-        scores_over_time.append(current_score)
+    time_intervals = evidences_texts
+    scores_over_time = [current_score] + my_scores
 
     # Plot the graph
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(12, 8))  # Increase figure size
     plt.plot(scores_over_time, marker='o')
+    for res_list in other_scores.values():
+        plt.plot(res_list, marker='o', color='gray')
+
     plt.xticks(rotation=45, ha='right')
+
     plt.xticks(range(len(time_intervals) + 1), ['Start'] + time_intervals)
     plt.xlabel('Evidence')
-    plt.ylabel('Descision Score')
+    plt.ylabel('Decision Score')
     plt.title('Decision Score Evolution Over Time')
 
     # Set y-axis limits and center at 0
@@ -157,8 +175,16 @@ def make_drift_diffusion_model(evidence_to_score):
     plt.yticks(range(-10, 11, 1))  # Set discrete intervals of 1
     plt.axhline(0, color='black', linestyle='--')
 
+    # Add labels at the top and bottom right of x-axis
+    plt.text(len(time_intervals), -10.5, decision.choice_1, ha='right')
+    plt.text(len(time_intervals), 10.5, decision.choice_2, ha='right')
+
     plt.grid(True)
-    #plt.show()
+
+    # Save the figure with higher resolution
+    plt.tight_layout()  # Adjust layout to make all elements fit
+    plt.savefig('score_evolution.png', dpi=300)  # Save with higher resolution
+    # plt.show()
 
     # Convert the plot to a base64-encoded image
     buffer = BytesIO()
@@ -175,18 +201,25 @@ def make_drift_diffusion_model(evidence_to_score):
 def graph(decision_id):
     decision = Decision.query.get_or_404(decision_id)
     evidences = decision.evidences.all()
-    evidence_to_score = dict()
+
+    evidences_texts = []
+    my_scores = []
+    other_scores = None
 
     for evidence in evidences:
+        evidences_texts.append(evidence.text)
+
         response = Response.query.filter_by(user_id=current_user.id, evidence_id=evidence.id).first()
         if response:
-            evidence_to_score[evidence.text] = response.value
-        else:
-           break
+            my_scores.append(response.value)
+        
+        other_responses = Response.query.filter(not_(Response.user_id == current_user.id), Response.evidence_id == evidence.id).all()
+        if other_scores is None:
+            other_scores = {res.user_id : [] for res in other_responses }
+        for res in other_responses:
+            other_scores[res.user_id].append(res.value)
+       
 
-    if not evidence_to_score:
-        return "No responses found for the specified decision and user."
-
-    image_data = make_drift_diffusion_model(evidence_to_score)
+    image_data = make_drift_diffusion_model(evidences_texts, my_scores, other_scores, decision)
 
     return render_template('graph.html', image_data=image_data, decision=decision)

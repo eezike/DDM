@@ -33,3 +33,4 @@ class Response(db.Model):
     value = db.Column(db.Float, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     evidence_id = db.Column(db.Integer, db.ForeignKey('evidence.id'), nullable=False)
+    decision_id = db.Column(db.Integer, db.ForeignKey('decision.id'), nullable=False)

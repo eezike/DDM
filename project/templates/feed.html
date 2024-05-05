@@ -10,10 +10,19 @@
                 <div class="card">
                     <div class="card-content">
                         <div style="font-size: 5em;">{{ decision.emoji }}</div>
-                        <h3 class="title has-text-black is-4">{{ decision.title }}</h3>
+                        <h3 class="title has-text-black is-4">{{ decision.main_problem }}</h3>
                         <p>By {{ decision.user.name }}</p>
-                       
-                        <a href="{{ url_for('main.answer_decision', decision_id=decision.id) }}" class="button is-primary">Answer</a>
+                        
+                        {% if current_user.is_authenticated %}
+                            {% if has_user_answered_decision(current_user.id, decision.id) %}
+                                <a href="{{ url_for('main.graph', decision_id=decision.id) }}" class="button is-warning">View Graph</a>
+                            {% else %}
+                                <a href="{{ url_for('main.answer_decision', decision_id=decision.id) }}" class="button is-primary">Answer</a>
+                            {% endif %}
+                        {% else %}
+
+                            <a href="{{ url_for('auth.login') }}" class="button is-info">Login to View</a>
+                        {% endif %}
                     </div>
                 </div>
                 {% endfor %}

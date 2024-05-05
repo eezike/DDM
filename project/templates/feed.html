@@ -5,17 +5,15 @@
     <div class="columns is-centered">
         <div class="column is-8">
             <div class="box">
-                <h1 class="title has-text-black">Problems Feed</h1>
-                {% for problem in problems %}
+                <h1 class="title has-text-black">Decisions Feed</h1>
+                {% for decision in decisions %}
                 <div class="card">
                     <div class="card-content">
-                        {% if problem.emoji %}
-                        <div style="font-size: 5em;">{{ problem.emoji }}</div>
-                        {% endif %}
-                        <h3 class="title has-text-black is-4">{{ problem.title }}</h3>
-                        <p>By {{ problem.user.name }}</p>
+                        <div style="font-size: 5em;">{{ decision.emoji }}</div>
+                        <h3 class="title has-text-black is-4">{{ decision.title }}</h3>
+                        <p>By {{ decision.user.name }}</p>
                        
-                        <a href="{{ url_for('main.answer_problem', problem_id=problem.id) }}" class="button is-primary">Answer</a>
+                        <a href="{{ url_for('main.answer_decision', decision_id=decision.id) }}" class="button is-primary">Answer</a>
                     </div>
                 </div>
                 {% endfor %}

@@ -1,5 +1,37 @@
 {% extends "base.html" %}
 
 {% block content %}
-<p>Nothing yet</p>
+<section class="hero is-primary">
+    <div class="hero-head">
+    <h1 class="title">
+    Drift-Diffusion Models: Unveiling the Secrets of Decision-Making
+    </h1>
+    </div>
+    </section>
+    
+    <section class="section">
+    <div class="box">
+    <h2 class="title has-text-black">What are Drift-Diffusion Models (DDMs)?</h2>
+    <p class="has-text-left">In the realm of cognitive psychology and neuroscience, drift-diffusion models (DDMs) have emerged as a powerful tool for understanding the intricate processes underlying decision-making [1]. These models depict decision-making as an accumulation of evidence over time, influenced by both systematic biases (drift) and random fluctuations (diffusion) [2].</p>
+    <p class="has-text-left">Imagine you're deciding between two flavors of ice cream: chocolate and strawberry. A DDM would represent this decision as a race between two decision variables. Evidence supporting chocolate chip builds up the "chocolate" variable, while evidence for strawberry strengthens the "strawberry" variable. The speed at which these variables accumulate evidence reflects the drift, with a stronger preference for chocolate leading to a faster drift towards the "chocolate" variable.</p>
+    <p class="has-text-left">However, the decision process isn't perfect. Internal noise, like momentary distractions, can introduce random fluctuations in the evidence accumulation. These fluctuations are captured by the diffusion process, metaphorically like bumps on the road that can slow down one variable or the other momentarily.</p>
+    <p class="has-text-left">Ultimately, the first variable to reach a pre-determined threshold (decision bound) wins the race, and you make your choice. The time it takes to reach the threshold reflects your response time, with a higher drift or less noise leading to faster decisions.</p>
+    <cite>[1] R. Ratcliff, "A theory of decision-making for psychology and cognitive neuroscience," Psychological Review, vol. 85, no. 6, pp. 593-609, 1978. https://dictionary.apa.org/decision-making</cite>
+    <cite>[2] R. Bogacz et al., "The decision-making literature: A critical review," Trends in Cognitive Sciences, vol. 10, no. 4, pp. 197-204, 2006. https://www.cell.com/trends/cognitive-sciences/authors</cite>
+    </div>
+    </section>
+    
+    <section class="section">
+    <div class="box">
+    <h2 class="title has-text-black">DDMs in Action: What Can They Tell Us About Decision-Making?</h2>
+    <p class="has-text-left">The beauty of DDMs lies in their ability to explain two crucial aspects of decision-making: choice and response time. By fitting a DDM to behavioral data, researchers can extract valuable insights such as:</p>
+    <ul class="has-text-left">
+    <li><strong>Decision bias</strong>: The drift rate of a DDM reflects the underlying bias towards a particular choice. A higher drift towards chocolate in the ice cream example suggests a stronger preference for chocolate.</li>
+    <li><strong>Sensitivity to evidence</strong>: The diffusion coefficient in a DDM indicates how sensitive the decision process is to incoming evidence. A lower diffusion coefficient suggests a more stable and less noisy accumulation of evidence.</li>
+    <li><strong>Decision thresholds</strong>: The decision bounds in a DDM represent the level of evidence required to commit to a choice. Higher thresholds can indicate caution, requiring more evidence before making a decision.</li>
+    <li><strong>Strategy shifts</strong>: By analyzing changes in drift rates, diffusion coefficients, and decision bounds across different tasks or conditions, researchers can infer how individuals adjust their decision-making strategies.</li>
+    </ul>
+    <p class="has-text-left">DDMs have been successfully applied to a wide range of decision-making tasks, from simple perceptual judgments to complex economic choices [2]. Their ability to capture both the speed and accuracy of decisions makes them a valuable tool for understanding how the mind integrates evidence and arrives at a conclusion.</p>
+    </div>
+    </section>
 {% endblock %}

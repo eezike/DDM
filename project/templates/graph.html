@@ -1,5 +1,17 @@
 {% extends "base.html" %}
 
 {% block content %}
-<p>Nothing yet</p>
+<div class="container">
+    <div class="columns is-centered">
+        <div class="column is-8">
+            <div class="box">
+                <div style="font-size: 5em;">{{ decision.emoji }}</div>
+                <h3 class="title has-text-black is-4">"{{ decision.main_problem }}" - Drift Diffusion Model</h3>
+                <p>By {{ decision.user.name }}</p>
+               
+                <img src="data:image/png;base64,{{ image_data }}" alt="Drift Diffusion Model Graph">
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

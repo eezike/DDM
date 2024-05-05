@@ -1,45 +1,70 @@
-{% extends "base.html" %} {% block content %}
+{% extends "base.html" %} 
+
+{% block content %}
+<style>
+    .divider {
+        height: 1px; /* or any height you want */
+        background-color: #dbdbdb; /* or any color you prefer */
+        margin: 1.5rem 0; /* adjust margin as needed */
+        border: none;
+    }
+</style>
+
 <div class="column is-4 is-offset-4">
-    <h3 class="title">Submit Problem</h3>
+    <h3 class="title">Submit a Decision</h3>
     <div class="box">
         <form method="POST" action="/create" enctype="multipart/form-data">
             <div class="field">
                 <div class="control">
-                    <input class="input is-large" type="text" name="title" placeholder="Problem Title" required>
+                    <input class="input is-large" type="text" name="main_problem" placeholder="Decision" maxlength="100" required>
                 </div>
             </div>
 
             <div class="field">
                 <div class="control">
-                    <input class="input is-large" type="text" name="emoji" placeholder="Emoji (e.g. 😀)" maxlength="2" required>
+                    <input class="input is-normal" type="text" name="emoji" placeholder="Emoji (e.g. 😀)" maxlength="2" required>
                 </div>
             </div>
 
-            <div class="questions">
-                <div class="field question-field">
+            <div class="field">
+                <div class="control">
+                    <input class="input is-normal" type="text" name="choice_1" placeholder="Choice 1 (e.g. No)" maxlength="100" required>
+                </div>
+            </div>
+
+            <div class="field">
+                <div class="control">
+                    <input class="input is-normal" type="text" name="choice_2" placeholder="Choice 2  (e.g. Yes)" maxlength="100" required>
+                </div>
+            </div>
+
+            <hr class="divider">
+
+            <div class="evidences">
+                <div class="field evidence-field">
                     <div class="control">
-                        <input class="input is-large" type="text" name="questions[]" placeholder="Question 1" required>
-                        <button type="button" class="button is-danger is-small remove-question">
+                        <input class="input is-normal" type="text" name="evidences[]" placeholder="Evidence 1" maxlength="100" required>
+                        <button type="button" class="button is-danger is-small remove-evidence">
                             <span class="icon is-small">
                                 <i class="fas fa-times"></i>
                             </span>
                         </button>
                     </div>
                 </div>
-                <div class="field question-field">
+                <div class="field evidence-field">
                     <div class="control">
-                        <input class="input is-large" type="text" name="questions[]" placeholder="Question 2" required>
-                        <button type="button" class="button is-danger is-small remove-question">
+                        <input class="input is-normal" type="text" name="evidences[]" placeholder="Evidence 2" maxlength="100" required>
+                        <button type="button" class="button is-danger is-small remove-evidence">
                             <span class="icon is-small">
                                 <i class="fas fa-times"></i>
                             </span>
                         </button>
                     </div>
                 </div>
-                <div class="field question-field">
+                <div class="field evidence-field">
                     <div class="control">
-                        <input class="input is-large" type="text" name="questions[]" placeholder="Question 3" required>
-                        <button type="button" class="button is-danger is-small remove-question">
+                        <input class="input is-normal" type="text" name="evidences[]" placeholder="Evidence 3" maxlength="100" required>
+                        <button type="button" class="button is-danger is-small remove-evidence">
                             <span class="icon is-small">
                                 <i class="fas fa-times"></i>
                             </span>
@@ -50,7 +75,7 @@
 
             <div class="field">
                 <div class="control">
-                    <button type="button" class="button is-primary is-large add-question">Add Question</button>
+                    <button type="button" class="button is-primary is-large add-evidence">Add Evidence</button>
                 </div>
             </div>
 
@@ -63,40 +88,40 @@
 
 {% block scripts %}
 <script>
-    const questionContainer = document.querySelector('.questions');
-    const addQuestionButton = document.querySelector('.add-question');
-    const removeQuestionButtons = document.querySelectorAll('.remove-question');
+    const evidenceContainer = document.querySelector('.evidences');
+    const addEvidenceButton = document.querySelector('.add-evidence');
+    const removeEvidenceButtons = document.querySelectorAll('.remove-evidence');
 
-    let questionCount = 3;
+    let evidenceCount = 3;
 
-    addQuestionButton.addEventListener('click', () => {
-        questionCount++;
-        const questionField = document.createElement('div');
-        questionField.classList.add('field', 'question-field');
-        questionField.innerHTML = `
+    addEvidenceButton.addEventListener('click', () => {
+        evidenceCount++;
+        const evidenceField = document.createElement('div');
+        evidenceField.classList.add('field', 'evidence-field');
+        evidenceField.innerHTML = `
             <div class="control">
-                <input class="input is-large" type="text" name="questions[]" placeholder="Question ${questionCount}" required>
-                <button type="button" class="button is-danger is-small remove-question">
+                <input class="input is-normal" type="text" name="evidences[]" placeholder="Evidence ${evidenceCount}" maxlength="100" required>
+                <button type="button" class="button is-danger is-small remove-evidence">
                     <span class="icon is-small">
                         <i class="fas fa-times"></i>
                     </span>
                 </button>
             </div>
         `;
-        questionContainer.appendChild(questionField);
-        addRemoveQuestionEventListeners();
+        evidenceContainer.appendChild(evidenceField);
+        addRemoveEvidenceEventListeners();
     });
 
-    function addRemoveQuestionEventListeners() {
-        const removeQuestionButtons = document.querySelectorAll('.remove-question');
-        removeQuestionButtons.forEach(button => {
+    function addRemoveEvidenceEventListeners() {
+        const removeEvidenceButtons = document.querySelectorAll('.remove-evidence');
+        removeEvidenceButtons.forEach(button => {
             button.addEventListener('click', () => {
-                const questionField = button.closest('.question-field');
-                questionField.remove();
+                const evidenceField = button.closest('.evidence-field');
+                evidenceField.remove();
             });
         });
     }
 
-    addRemoveQuestionEventListeners();
+    addRemoveEvidenceEventListeners();
 </script>
 {% endblock %}

@@ -7,18 +7,29 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True) # primary keys are required by SQLAlchemy
     email = db.Column(db.String(100), unique=True)
     password = db.Column(db.String(100))
-    name = db.Column(db.String(1000))
-    problems = db.relationship('Problem', backref='user', lazy='dynamic')
+    name = db.Column(db.String(100))
+    decisions = db.relationship('Decision', backref='user', lazy='dynamic')
 
-class Problem(db.Model):
+class Decision(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(100), nullable=False)
+    main_problem = db.Column(db.String(100), nullable=False)
+    choice_1 = db.Column(db.String(100), nullable=False)
+    choice_2 = db.Column(db.String(100), nullable=False)
     emoji = db.Column(db.String(2), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    questions = db.relationship('Question', backref='problem', lazy='dynamic')
-    
 
-class Question(db.Model):
+    num_responses = db.Column(db.Integer, default=0)
+
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    evidences = db.relationship('Evidence', backref='decision', lazy='dynamic')
+    
+    
+class Evidence(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     text = db.Column(db.Text, nullable=False)
-    problem_id = db.Column(db.Integer, db.ForeignKey('problem.id'), nullable=False)
+    decision_id = db.Column(db.Integer, db.ForeignKey('decision.id'), nullable=False)
+
+class Response(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    value = db.Column(db.Float, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    evidence_id = db.Column(db.Integer, db.ForeignKey('evidence.id'), nullable=False)

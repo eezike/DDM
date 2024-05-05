@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+    html body {
+        color: black;
+    }
+    .slider-container {
+        position: relative;
+        margin-bottom: 20px;
+        width: 100%;
+    }
+    .slider-value {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 5px 10px;
+        font-weight: bold;
+    }
+    .slider.is-fullwidth {
+        width: 100%;
+    }
+</style>
+<div class="container">
+    <div class="columns is-centered">
+        <div class="column is-8">
+            <div class="box">
+                
+                <div class="field">
+                    <h1 class="title has-text-black">{{ decision.main_problem }}</h1>
+                    <p class="subtitle is-6 has-text-black">Created by: {{ decision.user.name }}</p>
+                    <div style="font-size: 5em;">{{ decision.emoji }}</div>
+                    <h2 class="subtitle is-6 has-text-black">
+                        {{ responses_index+1 }} / {{ num_evidences }}) {{ evidence.text }} [Previously at: {{ prev_value }}]
+                    </h2>
+                    <p><em>Determine the extent you want to go to either choice based on the previous and the given evidence. </em></p>
+                </div>
+                
+                <form method="POST">
+                    <div class="field">
+                        <div class="control slider-container">
+                            <input class="slider is-fullwidth" id="responseSlider" name="response" step="0.1" min="-10" max="10" value="{{ prev_value }}" type="range" required>
+                            
+                            <div class="slider-value" id="sliderValue">{{ prev_value }}</div>
+                            <div class="level">
+                                <span class="level-left">{{ decision.choice_1 }}</span>
+                                <span class="level-right">{{ decision.choice_2 }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="control">
+                            {% if responses_index+1 == num_evidences %}
+                                <button class="button is-primary" type="submit">Submit</button>
+                            {% else %}
+                                <button class="button is-info" type="submit">Next</button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    const slider = document.getElementById('responseSlider');
+    const sliderValue = document.getElementById('sliderValue');
+
+    slider.addEventListener('input', function() {
+        sliderValue.textContent = this.value;
+    });
+</script>
+{% endblock %}

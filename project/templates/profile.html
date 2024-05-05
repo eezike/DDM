@@ -5,46 +5,67 @@
     <div class="columns is-centered">
         <div class="column is-8">
             <div class="box">
-                <h1 class="title has-text-black">{{ name.title() }}'s Problems</h1>
-                {% if problems %}
+                {% with messages = get_flashed_messages() %}
+                {% for message in messages %}
+                    <div class="notification is-success">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+                {% endwith %}
+                <h1 class="title has-text-black">{{ name.title() }}'s Decisions</h1>
+                {% if decisions %}
                 <table class="table is-fullwidth">
                     <thead>
                         <tr>
                             <th>Title</th>
                             <th>Image</th>
                             <th>Questions</th>
+                            <th>Responses</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for problem in problems %}
-                        <tr>
-                            <td>{{ problem.title }}</td>
-                            <td>{{ problem.emoji if problem.emoji else 'No emoji' }}</td>
+                        {% for decision in decisions %}
+                          <tr>
+                            <td>{{ decision.title }}</td>
+                            <td><div style="font-size: 2em;">{{ decision.emoji }}</div></td>
                             <td>
-                                <ul>
-                                    {% for question in problem.questions %}
-                                    <li>{{ question.text }}</li>
-                                    {% endfor %}
-                                </ul>
+                              <ul>
+                                {% for question in decision.evidences %}
+                                    {% if loop.index <= 2 %}
+                                        <li>{{ question.text }}</li>
+                                        <br>
+                                    {% endif %}
+                                {% endfor %}
+                                {% if decision.evidences.count() > 2 %}
+                                    <li>...</li>
+                                {% endif %}
+                              </ul>
                             </td>
+                            <td>{{ decision.num_responses }}</td>
                             <td>
-                                <div class="buttons">
-                                    <a href="{{ url_for('main.delete_problem', problem_id=problem.id) }}" class="button is-danger is-outlined">
-                                        <span class="icon">
-                                            <i class="fas fa-trash"></i>
-                                        </span>
-                                        <span>Delete</span>
-                                    </a>
-                                </div>
+                              <div class="buttons">
+                                <form action="{{ url_for('main.delete_decision', decision_id=decision.id) }}" method="POST">
+                                  <button type="submit" class="button is-danger is-outlined">
+                                    <span class="icon">
+                                      <i class="fas fa-trash"></i>
+                                    </span>
+                                    <span>Delete</span>
+                                  </button>
+                                </form>
+                              </div>
                             </td>
-                        </tr>
+                          </tr>
                         {% endfor %}
-                    </tbody>
+                      </tbody>
                 </table>
                 {% else %}
-                <p>You haven't submitted any problems yet.</p>
+                <p>You haven't submitted any decisions yet.</p>
                 {% endif %}
+                <br>
+                <div class="is-centered mt-4">
+                    <a class="button is-info" href="{{ url_for('main.create') }}">Create</a>
+                </div>
             </div>
         </div>
     </div>

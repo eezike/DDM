@@ -1,58 +1,102 @@
-{% extends "base.html" %}
-
-{% block content %}
+{% extends "base.html" %} {% block content %}
 <div class="column is-4 is-offset-4">
-   <h3 class="title">Submit Questions</h3>
-   <div class="box">
-       <form method="POST" action="/xxxx">
-           <div id="question-fields">
-               <div class="field">
-                   <div class="control">
-                       <input class="input" type="text" name="questions[]" placeholder="Question 1" required>
-                   </div>
-               </div>
-           </div>
-           <div class="field">
-               <div class="control">
-                   <button type="button" class="button is-info" id="add-question">Add Question</button>
-                   <button type="button" class="button is-danger" id="remove-question" disabled>Remove Question</button>
-               </div>
-           </div>
-           <button type="submit" class="button is-primary is-fullwidth">Submit</button>
-       </form>
-   </div>
+    <h3 class="title">Submit Problem</h3>
+    <div class="box">
+        <form method="POST" action="/create" enctype="multipart/form-data">
+            <div class="field">
+                <div class="control">
+                    <input class="input is-large" type="text" name="title" placeholder="Problem Title" required>
+                </div>
+            </div>
+
+            <div class="field">
+                <div class="control">
+                    <input class="input is-large" type="text" name="emoji" placeholder="Emoji (e.g. 😀)" maxlength="2" required>
+                </div>
+            </div>
+
+            <div class="questions">
+                <div class="field question-field">
+                    <div class="control">
+                        <input class="input is-large" type="text" name="questions[]" placeholder="Question 1" required>
+                        <button type="button" class="button is-danger is-small remove-question">
+                            <span class="icon is-small">
+                                <i class="fas fa-times"></i>
+                            </span>
+                        </button>
+                    </div>
+                </div>
+                <div class="field question-field">
+                    <div class="control">
+                        <input class="input is-large" type="text" name="questions[]" placeholder="Question 2" required>
+                        <button type="button" class="button is-danger is-small remove-question">
+                            <span class="icon is-small">
+                                <i class="fas fa-times"></i>
+                            </span>
+                        </button>
+                    </div>
+                </div>
+                <div class="field question-field">
+                    <div class="control">
+                        <input class="input is-large" type="text" name="questions[]" placeholder="Question 3" required>
+                        <button type="button" class="button is-danger is-small remove-question">
+                            <span class="icon is-small">
+                                <i class="fas fa-times"></i>
+                            </span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="field">
+                <div class="control">
+                    <button type="button" class="button is-primary is-large add-question">Add Question</button>
+                </div>
+            </div>
+
+            <button type="submit" class="button is-block is-info is-large is-fullwidth">Submit</button>
+        </form>
+    </div>
 </div>
 {% endblock %}
 
+
 {% block scripts %}
 <script>
-   let questionCount = 1;
+    const questionContainer = document.querySelector('.questions');
+    const addQuestionButton = document.querySelector('.add-question');
+    const removeQuestionButtons = document.querySelectorAll('.remove-question');
 
-   const addQuestionButton = document.getElementById('add-question');
-   const removeQuestionButton = document.getElementById('remove-question');
-   const questionFields = document.getElementById('question-fields');
+    let questionCount = 3;
 
-   addQuestionButton.addEventListener('click', () => {
-       questionCount++;
-       const newField = document.createElement('div');
-       newField.classList.add('field');
-       newField.innerHTML = `
-           <div class="control">
-               <input class="input" type="text" name="questions[]" placeholder="Question ${questionCount}" required>
-           </div>
-       `;
-       questionFields.appendChild(newField);
-       removeQuestionButton.disabled = false;
-   });
+    addQuestionButton.addEventListener('click', () => {
+        questionCount++;
+        const questionField = document.createElement('div');
+        questionField.classList.add('field', 'question-field');
+        questionField.innerHTML = `
+            <div class="control">
+                <input class="input is-large" type="text" name="questions[]" placeholder="Question ${questionCount}" required>
+                <button type="button" class="button is-danger is-small remove-question">
+                    <span class="icon is-small">
+                        <i class="fas fa-times"></i>
+                    </span>
+                </button>
+            </div>
+        `;
+        questionContainer.appendChild(questionField);
+        addRemoveQuestionEventListeners();
+    });
 
-   removeQuestionButton.addEventListener('click', () => {
-       if (questionCount > 1) {
-           questionCount--;
-           questionFields.removeChild(questionFields.lastChild);
-           if (questionCount === 1) {
-               removeQuestionButton.disabled = true;
-           }
-       }
-   });
+    function addRemoveQuestionEventListeners() {
+        const removeQuestionButtons = document.querySelectorAll('.remove-question');
+        removeQuestionButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const questionField = button.closest('.question-field');
+                questionField.remove();
+            });
+        });
+    }
+
+    addRemoveQuestionEventListeners();
 </script>
 {% endblock %}
